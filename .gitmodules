@@ -1,0 +1,9 @@
+[submodule "evs"]
+	path = evs
+	url = https://github.com/abernatskiy/evs.git
+[submodule "pbsGridWalker"]
+	path = pbsGridWalker
+	url = https://github.com/abernatskiy/pbsGridWalker.git
+[submodule "arrowbots"]
+	path = arrowbots
+	url = https://github.com/abernatskiy/arrowbots.git
