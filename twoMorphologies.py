@@ -2,6 +2,10 @@ from os.path import join, exists
 from time import sleep
 import subprocess
 
+import os
+import sys
+sys.path.append(os.getcwd())
+
 import pbsGridWalker.grid as gr
 import pbsGridWalker.routes as rt
 import pbsGridWalker.tools.algorithms as tal
@@ -22,7 +26,7 @@ arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachmentType
                     'simulation parameters': ['simulationTime', 'timeStep', 'integrateError', 'writeTrajectories']
                    }
 evsExecutable = join(rt.home, 'morphMod', 'evs', 'evsServer.py')
-arrowbotsExecutable = join(rt.home, 'morphmod', 'arrowbots', 'arrowbotEvaluator')
+arrowbotsExecutable = join(rt.home, 'morphMod', 'arrowbots', 'arrowbotEvaluator')
 
 # definition of hyperparameters
 evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
@@ -32,10 +36,11 @@ evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'com
 arrowbotsAdditionalParams = {'segments': 3,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'yes'
                             }
+numTrials = 2
 
 # definitions required for pbsGridWalker
 computationName = 'twoMorphologies'
-parametricGrid = gr.Grid1d('sensorAttachment', ['identity', 'null'])*gr.Grid1dFromFile('randomSeed', randSeedFile, size=50)
+parametricGrid = gr.Grid1d('sensorAttachment', ['identity', 'null'])*gr.Grid1dFromFile('randomSeed', randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
 	if not exists(arrowbotsExecutable):
@@ -70,6 +75,6 @@ def runComputationAtPoint(worker, params):
 #passes = 1
 queue = 'shortq'
 #maxJobs = 1
-expectedWallClockTime = '00:05:00'
+expectedWallClockTime = '00:15:00'
 involvedGitRepositories = {'evs': join(rt.home, 'morphMod', 'evs'), 'arrowbots': join(rt.home, 'morphMod', 'arrowbots')}
 #dryRun = False
