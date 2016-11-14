@@ -39,12 +39,13 @@ def writeSSV(listOfLists, filename):
 # definition of hyperparameters
 evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
                        'length': 18, 'initLowerLimit': -1, 'initUpperLimit': 1, 'lowerCap': -1, 'upperCap': 1, 'mutExploration': 0.5, 'mutInsDelRatio': 1, 'mutationAmplitude': 1,
-                       'populationSize': 30, 'initialPopulationType': 'sparse', 'genStopAfter': 10, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes'
+                       'populationSize': 30, 'initialPopulationType': 'sparse', 'genStopAfter': 1000, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes',
+                         'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 100
                       } # length is 2*segments^2!!!
 arrowbotsAdditionalParams = {'segments': 3,
-                             'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'yes'
+                             'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'
                             }
-numTrials = 2
+numTrials = 50
 arrowbotInitialConditions = [[0,0,0], [0,0,0], [0,0,0]]
 arrowbotTargetOrientations = [[1,0,0], [0,1,0], [0,0,1]]
 
@@ -86,7 +87,7 @@ def runComputationAtPoint(worker, params):
 #pointsPerJob = 1
 #passes = 1
 queue = 'shortq'
-#maxJobs = 1
-expectedWallClockTime = '00:15:00'
+maxJobs = 50
+expectedWallClockTime = '00:30:00'
 involvedGitRepositories = {'evs': join(rt.home, 'morphMod', 'evs'), 'arrowbots': join(rt.home, 'morphMod', 'arrowbots')}
 #dryRun = False
