@@ -63,6 +63,7 @@ def processResults(experiment):
 	pass
 
 def runComputationAtPoint(worker, params):
+	print('Running evs-arrowbots pair with the following parameters: ' + str(params))
 	parsedParams = tal.classifyDict(params, serverClientClassifier)
 	serverParams = tal.sumOfDicts(parsedParams['server'], evsAdditionalParams)
 	clientParams = tal.sumOfDicts(parsedParams['client'], arrowbotsAdditionalParams)
