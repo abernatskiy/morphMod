@@ -25,7 +25,7 @@ evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
                              'printGenerationPeriod', 'backup', 'backupPeriod', 'logParetoFront',
                              'logParetoFrontPeriod', 'logParetoFrontKeepAllGenerations']
              }
-arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachmentType'],
+arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachment'],
                     'simulation parameters': ['simulationTime', 'timeStep', 'integrateError', 'writeTrajectories']
                    }
 evsExecutable = join(rt.home, 'morphMod', 'evs', 'evsServer.py')
@@ -84,7 +84,7 @@ def runComputationAtPoint(worker, params):
 	return True
 
 # auxiliary definitions for pbsGridWalker
-#pointsPerJob = 1
+pointsPerJob = 20
 #passes = 1
 queue = 'shortq'
 maxJobs = 50
