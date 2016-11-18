@@ -12,7 +12,7 @@ import pbsGridWalker.tools.fsutils as tfs
 
 # constant auxiliary definitions
 randSeedFile = join(rt.pbsGridWalker, 'seedFiles', 'randints1416551751.dat')
-serverClientClassifier = {'server': ['randomSeed'], 'client': ['sensorAttachment']}
+serverClientClassifier = {'server': ['randomSeed'], 'client': ['sensorAttachmentType']}
 evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
              'indivParams': ['length', 'mutProbability', 'mutInsDelRatio', 'mutExploration',
                              'initLowerLimit', 'initUpperLimit', 'lowerCap', 'upperCap',
@@ -25,7 +25,7 @@ evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
                              'printGenerationPeriod', 'backup', 'backupPeriod', 'logParetoFront',
                              'logParetoFrontPeriod', 'logParetoFrontKeepAllGenerations']
              }
-arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachment'],
+arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachmentType'],
                     'simulation parameters': ['simulationTime', 'timeStep', 'integrateError', 'writeTrajectories']
                    }
 evsExecutable = join(rt.home, 'morphMod', 'evs', 'evsServer.py')
@@ -51,7 +51,8 @@ arrowbotTargetOrientations = [[1,0,0], [0,1,0], [0,0,1]]
 
 # definitions required for pbsGridWalker
 computationName = 'twoMorphologies'
-parametricGrid = gr.Grid1d('sensorAttachment', ['identity', 'null'])*gr.Grid1dFromFile('randomSeed', randSeedFile, size=numTrials)
+attTypes = ['identity', 'null'] # auxiliary
+parametricGrid = gr.Grid1d('sensorAttachmentType', attTypes)*gr.Grid1dFromFile('randomSeed', randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
 	if not exists(arrowbotsExecutable):
@@ -60,7 +61,19 @@ def prepareEnvironment(experiment):
 		raise RuntimeError('EVS executable not found at ' + evsExecutable)
 
 def processResults(experiment):
-	pass
+	import os
+	import shutil
+	import numpy as np
+	import pbsGridWalker.tools.plotutils as tplt
+	tfs.makeDirCarefully('results', maxBackups=100)
+	def columnExtractor(gp):
+		outFile = gp['sensorAttachmentType'] + 'Fitness'
+		subprocess.call('cut -d \' \' -f 2 bestIndividual*.log | tail -n +4 | tr \'\n\' \' \' >> ../results/' + outFile, shell=True)
+		subprocess.call('echo >> ../results/' + outFile, shell=True)
+	experiment.executeAtEveryGridPointDir(columnExtractor)
+	os.chdir('results')
+	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison.png', title='Fitness time series for the two strategies for sensors attachment')
+	os.chdir('..')
 
 def runComputationAtPoint(worker, params):
 	print('Running evs-arrowbots pair with the following parameters: ' + str(params))
