@@ -47,11 +47,11 @@ arrowbotsAdditionalParams = {'segments': 3,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'
                             }
 numTrials = 50
-arrowbotInitialConditions = [[0,0,0], [0,0,0], [0,0,0]]
+arrowbotInitialConditions = [[1-0.57735,-1+2*0.57735, -2*0.57735], [-0.57735,1+2*0.57735,-2*0.57735], [-0.57735,2*0.57735,1-2*0.57735]]
 arrowbotTargetOrientations = [[1,0,0], [0,1,0], [0,0,1]]
 
 # definitions required for pbsGridWalker
-computationName = 'twoMorphologies'
+computationName = 'twoMorphologiesInitSqrt3'
 attTypes = ['identity', 'null'] # auxiliary
 parametricGrid = gr.Grid1d('sensorAttachmentType', attTypes)*gr.Grid1dFromFile('randomSeed', randSeedFile, size=numTrials)
 
@@ -104,5 +104,5 @@ pointsPerJob = 20
 queue = 'shortq'
 maxJobs = 50
 expectedWallClockTime = '00:30:00'
-involvedGitRepositories = {'evs': join(rt.home, 'morphMod', 'evs'), 'arrowbots': join(rt.home, 'morphMod', 'arrowbots')}
+involvedGitRepositories = {'evs': join(rt.home, 'morphMod', 'evs'), 'arrowbots': join(rt.home, 'morphMod', 'arrowbots'), 'morphMod': join(rt.home, 'morphMod')}
 #dryRun = False
