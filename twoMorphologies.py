@@ -73,7 +73,10 @@ def processResults(experiment):
 		subprocess.call('echo >> ../results/' + outFile, shell=True)
 	experiment.executeAtEveryGridPointDir(columnExtractor)
 	os.chdir('results')
-	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison.png', title='Fitness time series for the two strategies for sensors attachment')
+	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison50.png', title='Fitness time series for the two types of sensors attachment', xlimit=50)
+	tplt.plotAllTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessAllTrajectories50.png', title='Fitness time series for the two types of sensors attachment', xlimit=50)
+	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison.png', title='Fitness time series for the two types of sensors attachment')
+	tplt.plotAllTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessAllTrajectories.png', title='Fitness time series for the two types of sensors attachment')
 	os.chdir('..')
 
 def runComputationAtPoint(worker, params):
