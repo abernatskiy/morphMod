@@ -47,12 +47,15 @@ arrowbotsAdditionalParams = {'segments': 3,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'
                             }
 numTrials = 50
-arrowbotInitialConditions = [[1-0.57735,-1+2*0.57735, -2*0.57735], [-0.57735,1+2*0.57735,-2*0.57735], [-0.57735,2*0.57735,1-2*0.57735]]
+#arrowbotInitialConditions = [[1-0.57735,-1+2*0.57735, -2*0.57735], [-0.57735,1+2*0.57735,-2*0.57735], [-0.57735,2*0.57735,1-2*0.57735]]
+arrowbotInitialConditions = [[0,0,0], [0,0,0], [0,0,0]]
 arrowbotTargetOrientations = [[1,0,0], [0,1,0], [0,0,1]]
 
 # definitions required for pbsGridWalker
-computationName = 'twoMorphologiesInitSqrt3'
+computationName = 'twoMorphologies'
 attTypes = ['identity', 'null'] # auxiliary
+attLabels = {'identity': 'J=0', 'null': 'J=I'}
+
 parametricGrid = gr.Grid1d('sensorAttachmentType', attTypes)*gr.Grid1dFromFile('randomSeed', randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
@@ -73,10 +76,13 @@ def processResults(experiment):
 		subprocess.call('echo >> ../results/' + outFile, shell=True)
 	experiment.executeAtEveryGridPointDir(columnExtractor)
 	os.chdir('results')
-	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison50.png', title='Fitness time series for the two types of sensors attachment', xlimit=50)
-	tplt.plotAllTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessAllTrajectories50.png', title='Fitness time series for the two types of sensors attachment', xlimit=50)
-	tplt.plotAverageTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessComparison.png', title='Fitness time series for the two types of sensors attachment')
-	tplt.plotAllTimeSeries({x: np.loadtxt(x + 'Fitness') for x in attTypes}, '-Error', 'fitnessAllTrajectories.png', title='Fitness time series for the two types of sensors attachment')
+	title = None # 'Fitness time series for the two types of sensors attachment'
+	xlabel = 'Generations'
+	dataDict = {attLabels[x]: -1.*np.loadtxt(x + 'Fitness') for x in attTypes}
+	tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison50.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, figsize=(2.5,4))
+	tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories50.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, figsize=(2.5,4))
+	tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison.png', title=title, legendLocation=3, xlabel=xlabel)
+	tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories.png', title=title, legendLocation=None, xlabel=xlabel)
 	os.chdir('..')
 
 def runComputationAtPoint(worker, params):
