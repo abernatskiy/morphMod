@@ -39,20 +39,20 @@ def writeSSV(listOfLists, filename):
 
 # definition of hyperparameters
 evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
-                       'length': 18, 'initLowerLimit': -1, 'initUpperLimit': 1, 'lowerCap': -1, 'upperCap': 1, 'mutExploration': 0.5, 'mutInsDelRatio': 1, 'mutationAmplitude': 1,
-                       'populationSize': 30, 'initialPopulationType': 'sparse', 'genStopAfter': 1000, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes',
+                       'length': 32, 'initLowerLimit': -1, 'initUpperLimit': 1, 'lowerCap': -1, 'upperCap': 1, 'mutExploration': 0.5, 'mutInsDelRatio': 1, 'mutationAmplitude': 1,
+                       'populationSize': 40, 'initialPopulationType': 'random', 'genStopAfter': 2000, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes',
                          'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 100
                       } # length is 2*segments^2!!!
-arrowbotsAdditionalParams = {'segments': 3,
+arrowbotsAdditionalParams = {'segments': 4,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'
                             }
 numTrials = 50
 #arrowbotInitialConditions = [[1-0.57735,-1+2*0.57735, -2*0.57735], [-0.57735,1+2*0.57735,-2*0.57735], [-0.57735,2*0.57735,1-2*0.57735]]
-arrowbotInitialConditions = [[0,0,0], [0,0,0], [0,0,0]]
-arrowbotTargetOrientations = [[1,0,0], [0,1,0], [0,0,1]]
+arrowbotInitialConditions = [[0,0,0,0]*4]
+arrowbotTargetOrientations = [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]
 
 # definitions required for pbsGridWalker
-computationName = 'twoMorphologies'
+computationName = 'twoMorphologies4RandInitPop'
 attTypes = ['identity', 'null'] # auxiliary
 attLabels = {'identity': 'J=0', 'null': 'J=I'}
 
@@ -108,10 +108,10 @@ def runComputationAtPoint(worker, params):
 	return True
 
 # auxiliary definitions for pbsGridWalker
-pointsPerJob = 20
+pointsPerJob = 4
 #passes = 1
 queue = 'shortq'
 maxJobs = 50
-expectedWallClockTime = '00:30:00'
+expectedWallClockTime = '01:00:00'
 involvedGitRepositories = {'evs': join(rt.home, 'morphMod', 'evs'), 'arrowbots': join(rt.home, 'morphMod', 'arrowbots'), 'morphMod': join(rt.home, 'morphMod')}
 #dryRun = False
