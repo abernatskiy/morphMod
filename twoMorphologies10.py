@@ -17,7 +17,7 @@ import classifiers
 
 # Tunable hyperparameters
 numTrials = 50
-segments = 3
+segments = 10
 computationName = 'twoMorphologies_N' + str(segments)
 
 # Constant hyperparameters
@@ -33,9 +33,9 @@ arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null mat
 arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j in range(segments) ] # segmentsXsegments identity matrix
 
 # Optional definitions for pbsGridWalker that depend on the number of segments
-pointsPerJob = 25
+pointsPerJob = 1
 queue = 'shortq'
-expectedWallClockTime = '01:00:00'
+expectedWallClockTime = '03:00:00'
 
 # Optional definitions for pbsGridWalker that are constant
 maxJobs = 50
