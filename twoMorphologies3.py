@@ -38,7 +38,7 @@ queue = 'shortq'
 expectedWallClockTime = '01:00:00'
 
 # Optional definitions for pbsGridWalker that are constant
-maxJobs = 50
+maxJobs = 25
 involvedGitRepositories = mmr.involvedGitRepositories
 
 # Required pbsGridWalker definitions
