@@ -31,7 +31,7 @@ initialPopulationTypes = ['sparse', 'random']
 evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
                        'length': 2*(segments**2), 'initLowerLimit': -1, 'initUpperLimit': 1, 'lowerCap': -1, 'upperCap': 1, 'mutExploration': 0.5, 'mutInsDelRatio': 1, 'mutationAmplitude': 1,
                        'populationSize': 50, 'genStopAfter': 500, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes',
-                       'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1}
+                       'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1, 'backup': 'yes'}
 arrowbotsAdditionalParams = {'segments': segments,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
