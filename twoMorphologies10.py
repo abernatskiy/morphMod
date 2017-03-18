@@ -1,3 +1,8 @@
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot
+#matplotlib.pyplot.rcParams['agg.path.chunksize'] = 200000
+
 from os.path import join, exists, expanduser
 from time import sleep
 import subprocess
@@ -85,13 +90,14 @@ def processResults(experiment):
 	experiment.executeAtEveryGridPointDir(columnExtractor)
 	os.chdir('results')
 	xlabel = 'Generations'
+	ylimit = None
 	def plotAllTSForInitalPopulationType(initPopType):
 		title = None # 'Fitness time series for the two types of sensors attachment'
 		dataDict = {attachments[x]: -1.*np.loadtxt(fitnessFileName(x, initPopType)) for x in attachments.keys()}
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_GENS50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, figsize=(2.5,4))
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_GEN50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, figsize=(2.5,4))
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel)
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_GENS50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, ylimit=ylimit, figsize=(2.5,4))
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_GEN50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, ylimit=ylimit, figsize=(2.5,4))
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel, ylimit=ylimit)
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel, ylimit=ylimit)
 	for ip in initialPopulationTypes:
 		plotAllTSForInitalPopulationType(ip)
 	os.chdir('..')
