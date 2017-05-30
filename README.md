@@ -1,5 +1,5 @@
-A collections of experiments investigating the relationship between morphology and modularity.
+A collection of experiments investigating the relationship between morphology and modularity and the related phenomenon of gigantic convergence.
 
-The repo has a lot of submodules, so here is a useful command:
+This repository has a lot of submodules. To update them all recursively, run
 
 $ git submodule update --init --recursive
