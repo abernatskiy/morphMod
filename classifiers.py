@@ -1,4 +1,5 @@
-serverClientClassifier = {'server': ['randomSeed', 'initialPopulationType'], 'client': ['sensorAttachmentType']}
+# serverClientClassifier = {'server': ['randomSeed', 'initialPopulationType'], 'client': ['sensorAttachmentType']}
+serverClientClassifier = {'server': ['randomSeed', 'initialPopulationType'], 'client': []}
 
 # Since EVS has supported composite Individuals, it now requires a regexp classifier
 _indivClassParams = ['length', 'mutProbability', 'mutInsDelRatio', 'mutExploration',
