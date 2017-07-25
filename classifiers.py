@@ -1,12 +1,11 @@
-# serverClientClassifier = {'server': ['randomSeed', 'initialPopulationType'], 'client': ['sensorAttachmentType']}
-serverClientClassifier = {'server': ['randomSeed', 'initialPopulationType'], 'client': []}
-
-# Since EVS has supported composite Individuals, it now requires a regexp classifier
 _indivClassParams = ['length', 'mutProbability', 'mutInsDelRatio', 'mutExploration',
                      'initLowerLimit', 'initUpperLimit', 'lowerCap', 'upperCap',
                      'initProbabilityOfConnection', 'mutationAmplitude']
 _indivClassParamsRegexp = '(' + '|'.join(_indivClassParams) + ')'
 _classSuffixRegexp = 'Class[0-9]+'
+
+
+# Since EVS has supported composite Individuals, it now requires a regexp classifier
 evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
              'indivParams': [ _indivClassParamsRegexp,
                               _indivClassParamsRegexp + _classSuffixRegexp,
@@ -22,3 +21,5 @@ evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
 
 arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachmentType'],
                     'simulation parameters': ['simulationTime', 'timeStep', 'integrateError', 'writeTrajectories']}
+
+serverClientClassifier = {'server': sum(evsClassifier.values(), []), 'client': sum(arrowbotsClassifier.values(), [])}
