@@ -16,7 +16,7 @@ import classifiers
 #dryRun = False
 
 # Tunable hyperparameters
-numTrials = 10
+numTrials = 1
 segments = 3
 computationName = 'basisScript_N' + str(segments)
 
@@ -77,7 +77,7 @@ def runComputationAtPoint(worker, params):
 	clientProc = worker.spawnProcess([mmr.arrowbotsExecutable, geneFifo, evalFifo])
 	if not worker.runCommand([mmr.evsExecutable, evalFifo, geneFifo, str(serverParams['randomSeed']), 'evs.ini']):
 		return False
-	worker.killProcess(clientProc)
+	worker.killProcess(clientProc, label='client')
 	# TODO: Validation of the obtained files here
 	return True
 
@@ -87,8 +87,6 @@ def processResults(experiment):
 	import numpy as np
 	import pbsGridWalker.tools.plotutils as tplt
 	tfs.makeDirCarefully('results', maxBackups=100)
-#	def fitnessFileName(sensAttType, initPopType):
-#		return 'SA' + sensAttType + '_IP' + initPopType + '_fitness'
 	def fitnessFileName(initPopType):
 		return 'IP' + initPopType + '_fitness'
 	def columnExtractor(gp):
@@ -118,7 +116,5 @@ def processResults(experiment):
 		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
 		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
 
-#	for ip in initialPopulationTypes:
-#		plotAllTSForInitalPopulationType(ip)
 	plotTSForTheTwoInitalPopulationTypes()
 	os.chdir('..')
