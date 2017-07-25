@@ -19,3 +19,4 @@ generateFromOneBase() {
 }
 
 generateFromOneBase simpleTimeSeries
+generateFromOneBase rateSwipe
