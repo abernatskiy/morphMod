@@ -16,24 +16,25 @@ import classifiers
 #dryRun = False
 
 # Tunable hyperparameters
-numTrials = 1
+numTrials = 10
 segments = 3
 computationName = 'basisScript_N' + str(segments)
 
 # Constant hyperparameters
+# Regarding convergence times: about 100 gens for 3 segments at probability of morphological mutation of 0.2, 400 for 5, 10 gets stuck indefinitely
+
 # attachments = {'identity': 'J=I', 'null': 'J=0'}
 initialPopulationTypes = ['sparse', 'random']
-evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplified', 'communicator': 'chunkedUnixPipe',
+evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
                        'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
                        'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
                        'mutationAmplitudeClass0': 1,
                        'compositeClass1': 'integerWeightsSwitchableConnections',
                        'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                        'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-                       'populationSize': 50, 'genStopAfter': 100,
-                       'initialPopulationType': 'random', 'morphologyControlIndivs': 'yes', 'secondObjectiveProbability': 1.,
+                       'populationSize': 50, 'genStopAfter': 200, 'secondObjectiveProbability': 1.,
                        'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1,
-                       'backup': 'yes', 'trackAncestry': 'yes'}
+                       'backup': 'no', 'trackAncestry': 'no'}
 arrowbotsAdditionalParams = {'segments': segments, 'sensorAttachmentType': 'variable',
                              'simulationTime': 3., 'timeStep': 0.05, 'integrateError': 'false', 'writeTrajectories': 'false'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
@@ -45,7 +46,7 @@ queue = 'shortq'
 expectedWallClockTime = '01:00:00'
 
 # Optional definitions for pbsGridWalker that are constant
-maxJobs = 3
+maxJobs = 2
 involvedGitRepositories = mmr.involvedGitRepositories
 
 # Required pbsGridWalker definitions
@@ -62,7 +63,9 @@ def runComputationAtPoint(worker, params):
 	print('Running evs-arrowbots pair with the following parameters: ' + str(params))
 	parsedParams = tal.classifyDict(params, classifiers.serverClientClassifier)
 	serverParams = tal.sumOfDicts(parsedParams['server'], evsAdditionalParams)
+	print('Server params: ' + str(serverParams))
 	clientParams = tal.sumOfDicts(parsedParams['client'], arrowbotsAdditionalParams)
+	print('Client params: ' + str(clientParams))
 	tiniw.write(serverParams, classifiers.evsClassifier, 'evs.ini')
 	tiniw.write(clientParams, classifiers.arrowbotsClassifier, 'arrowbot.ini')
 	tfio.writeColumns(arrowbotInitialConditions, 'initialConditions.dat')
@@ -79,36 +82,43 @@ def runComputationAtPoint(worker, params):
 	return True
 
 def processResults(experiment):
-	"""
 	import os
 	import shutil
 	import numpy as np
 	import pbsGridWalker.tools.plotutils as tplt
 	tfs.makeDirCarefully('results', maxBackups=100)
-	def fitnessFileName(sensAttType, initPopType):
-		return 'SA' + sensAttType + '_IP' + initPopType + '_fitness'
+#	def fitnessFileName(sensAttType, initPopType):
+#		return 'SA' + sensAttType + '_IP' + initPopType + '_fitness'
+	def fitnessFileName(initPopType):
+		return 'IP' + initPopType + '_fitness'
 	def columnExtractor(gp):
-		outFile = fitnessFileName(gp['sensorAttachmentType'], gp['initialPopulationType'])
+		outFile = fitnessFileName(gp['initialPopulationType'])
 		subprocess.call('cut -d \' \' -f 2 bestIndividual*.log | tail -n +4 | tr \'\n\' \' \' >> ../results/' + outFile, shell=True)
 		subprocess.call('echo >> ../results/' + outFile, shell=True)
 	experiment.executeAtEveryGridPointDir(columnExtractor)
 	os.chdir('results')
 	xlabel = 'Generations'
 	ylimit = None
-	yscale = 'log'
-	xscale = 'log'
 	margins = 0.5
-	xlimit = 500
-	alpha=0.3
-	def plotAllTSForInitalPopulationType(initPopType):
-		title = None # 'Fitness time series for the two types of sensors attachment'
-		dataDict = {attachments[x]: -1.*np.loadtxt(fitnessFileName(x, initPopType)) for x in attachments.keys()}
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_GENS50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, ylimit=ylimit, figsize=(2.5,4), xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_GEN50_IP' + initPopType + '.png', title=title, legendLocation=None, xlabel=xlabel, xlimit=50, ylimit=ylimit, figsize=(2.5,4), xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparison_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=500, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectories_IP' + initPopType + '.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=500, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
-	for ip in initialPopulationTypes:
-		plotAllTSForInitalPopulationType(ip)
+	xlimit = evsAdditionalParams['genStopAfter']
+	alpha = 0.3
+	yscale = 'log'
+
+	def plotTSForTheTwoInitalPopulationTypes():
+		title = 'Fitness time series for the two types of initial populations'
+		dataDict = {x: -1.*np.loadtxt(fitnessFileName(x)) for x in ['random', 'sparse']}
+
+		# Plotting logscale average and trajectory scatter
+		xscale = 'log'
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+
+		# Plotting linscale average and trajectory scatter
+		xscale = 'lin'
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+
+#	for ip in initialPopulationTypes:
+#		plotAllTSForInitalPopulationType(ip)
+	plotTSForTheTwoInitalPopulationTypes()
 	os.chdir('..')
-	"""
-	pass
