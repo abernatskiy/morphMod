@@ -16,7 +16,7 @@ import classifiers
 #dryRun = False
 
 # Tunable hyperparameters
-numTrials = 1
+numTrials = 20
 segments = 3
 computationName = 'basisScript_N' + str(segments)
 
@@ -32,7 +32,7 @@ evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': '
                        'compositeClass1': 'integerWeightsSwitchableConnections',
                        'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                        'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-                       'populationSize': 50, 'genStopAfter': 200, 'secondObjectiveProbability': 1.,
+                       'genStopAfter': 200, 'populationSize': 50, 'secondObjectiveProbability': 1.,
                        'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1,
                        'backup': 'no', 'trackAncestry': 'no'}
 arrowbotsAdditionalParams = {'segments': segments, 'sensorAttachmentType': 'variable',
