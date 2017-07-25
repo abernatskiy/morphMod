@@ -93,24 +93,30 @@ def processResults(experiment):
 	os.chdir('results')
 	xlabel = 'Generations'
 	ylimit = None
-	margins = 0.5
 	xlimit = evsAdditionalParams['genStopAfter']
-	alpha = 0.3
-	yscale = 'log'
+	margins = 0.5
 
 	def plotTSForTheTwoInitalPopulationTypes():
 		title = 'Fitness time series for the two types of initial populations'
 		dataDict = {x: -1.*np.loadtxt(fitnessFileName(x)) for x in ['random', 'sparse']}
 
-		# Plotting logscale average and trajectory scatter
-		xscale = 'log'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		# Plotting averages in linear time scales on y
+		yscale = 'lin'
 
-		# Plotting linscale average and trajectory scatter
 		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLinLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		xscale = 'log'
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLogLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+
+
+		# Plotting the trajectory scatter in logarithmic time scale on y
+		alpha = 0.3
+		yscale = 'log'
+
+		xscale = 'lin'
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		xscale = 'log'
+		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
 
 	plotTSForTheTwoInitalPopulationTypes()
 	os.chdir('..')
