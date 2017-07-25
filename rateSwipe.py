@@ -18,12 +18,12 @@ import classifiers
 # Tunable hyperparameters
 numTrials = 20
 segments = 3
-computationName = 'basisScript_N' + str(segments)
+computationName = 'rateSwipe_N' + str(segments)
 
 # Constant hyperparameters
 initialPopulationTypes = ['sparse', 'random']
 evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
-                       'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
+                       'compositeClass0': 'integerVectorSymmetricRangeMutations',
                        'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
                        'mutationAmplitudeClass0': 1,
                        'compositeClass1': 'integerWeightsSwitchableConnections',
@@ -47,7 +47,7 @@ maxJobs = 2
 involvedGitRepositories = mmr.involvedGitRepositories
 
 # Required pbsGridWalker definitions
-parametricGrid = gr.Grid1d('initialPopulationType', initialPopulationTypes)*gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
+parametricGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.1, 0.1, 0, 8)*gr.Grid1d('initialPopulationType', initialPopulationTypes)*gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
 	if not exists(mmr.arrowbotsExecutable):
@@ -78,6 +78,7 @@ def runComputationAtPoint(worker, params):
 	return True
 
 def processResults(experiment):
+	'''
 	import os
 	import shutil
 	import numpy as np
@@ -114,3 +115,5 @@ def processResults(experiment):
 
 	plotTSForTheTwoInitalPopulationTypes()
 	os.chdir('..')
+	'''
+	pass
