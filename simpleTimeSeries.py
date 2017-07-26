@@ -19,7 +19,7 @@ import gctools
 # Tunable hyperparameters
 numTrials = 20
 segments = 3
-computationName = 'basisScript_N' + str(segments)
+computationName = 'simpleTimeSeries_N' + str(segments)
 
 # Constant hyperparameters
 initialPopulationTypes = ['sparse', 'random']
