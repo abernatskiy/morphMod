@@ -12,6 +12,7 @@ import pbsGridWalker.tools.fileIO as tfio # for writeColumns()
 
 import morphModRoutes as mmr
 import classifiers
+import gctools
 
 #dryRun = False
 
@@ -83,24 +84,32 @@ def processResults(experiment):
 	import numpy as np
 	import pbsGridWalker.tools.plotutils as tplt
 	tfs.makeDirCarefully('results', maxBackups=100)
-	def fitnessFileName(initPopType):
-		return 'IP' + initPopType + '_fitness'
-	def columnExtractor(gp):
-		outFile = fitnessFileName(gp['initialPopulationType'])
-		subprocess.call('cut -d \' \' -f 2 bestIndividual*.log | tail -n +4 | tr \'\n\' \' \' >> ../results/' + outFile, shell=True)
-		subprocess.call('echo >> ../results/' + outFile, shell=True)
-	experiment.executeAtEveryGridPointDir(columnExtractor)
-	os.chdir('results')
-	xlabel = 'Generations'
-	ylimit = None
-	xlimit = evsAdditionalParams['genStopAfter']
-	margins = 0.5
 
-	def plotTSForTheTwoInitalPopulationTypes():
+	def gridFileNamePrefix(gridPoint):
+		return 'IP{}'.format(gridPoint['initialPopulationType'])
+
+	##### Extracting and plotting fitness time series #####
+
+	def plotFitnessTSs():
+		def fitnessFileName(gp):
+			return gridFileNamePrefix(gp) + '_fitness'
+		def columnExtractor(gp):
+			outFile = fitnessFileName(gp)
+			subprocess.call('cut -d \' \' -f 2 bestIndividual*.log | tail -n +4 | tr \'\n\' \' \' >> ../results/' + outFile, shell=True)
+			subprocess.call('echo >> ../results/' + outFile, shell=True)
+		experiment.executeAtEveryGridPointDir(columnExtractor)
+
+		os.chdir('results')
+
+		xlabel = 'Generations'
+		xlimit = evsAdditionalParams['genStopAfter']
+		ylimit = None
+		margins = 0.5
+
 		title = 'Fitness time series for the two types of initial populations'
-		dataDict = {x: -1.*np.loadtxt(fitnessFileName(x)) for x in ['random', 'sparse']}
+		dataDict = {x: -1.*np.loadtxt(fitnessFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
 
-		# Plotting averages in linear time scales on y
+		# Plotting averages in linear scale on y
 		yscale = 'lin'
 
 		xscale = 'lin'
@@ -108,8 +117,7 @@ def processResults(experiment):
 		xscale = 'log'
 		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLogLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
 
-
-		# Plotting the trajectory scatter in logarithmic time scale on y
+		# Plotting the trajectory scatter in logarithmic scale on y
 		alpha = 0.3
 		yscale = 'log'
 
@@ -118,5 +126,35 @@ def processResults(experiment):
 		xscale = 'log'
 		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
 
-	plotTSForTheTwoInitalPopulationTypes()
-	os.chdir('..')
+		os.chdir('..')
+
+	plotFitnessTSs()
+
+	##### Extracting and plotting time series for distance to the maximally modular morphology (MMM) #####
+	def plotMinMMMDistTSs():
+		def minMMMDistFileName(gridPoint):
+			return '../results/' + gridFileNamePrefix(gridPoint) + '_minMMMDist'
+		def generateMinMMMDistTimeSeries(gridPoint):
+			minMMMDistTS = [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in range(1, evsAdditionalParams['genStopAfter']+1) ]
+			filename = minMMMDistFileName(gridPoint)
+			with open(filename, 'a') as file:
+				file.write(' '.join(map(str, minMMMDistTS)) + '\n')
+		experiment.executeAtEveryGridPointDir(generateMinMMMDistTimeSeries)
+
+		os.chdir('results')
+		xlabel = 'Generations'
+		ylimit = None
+		xlimit = evsAdditionalParams['genStopAfter']
+		margins = 0.5
+
+		title = 'Hamming distance to maximally modular morphology'
+		dataDict = {x: np.loadtxt(minMMMDistFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
+
+		# Plotting averages in linear time scales on y
+		yscale = 'lin'
+		xscale = 'lin'
+		tplt.plotAverageTimeSeries(dataDict, 'Mutations to MMM', 'minMMMDistTS.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+
+		os.chdir('..')
+
+	plotMinMMMDistTSs()

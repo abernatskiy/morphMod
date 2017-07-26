@@ -19,7 +19,7 @@ def _hammingDistanceToMMM(morphology):
 def hammingDistancesAndFitnessFromParetoFrontFile(genNum, dataFolder='.'):
 	'''Returns three arrays: individual IDs, their corresponding fitnesses and how far their morphologies are from the MMM'''
 	filename = join(dataFolder, 'paretoFront_gen{}.log'.format(genNum))
-	contents = np.loadtxt(filename)
+	contents = np.loadtxt(filename, ndmin=2)
 	ids = np.array(contents[:,1], dtype=np.int)
 	fitness = np.array(contents[:,0], dtype=np.float)
 	morphologies = np.array(contents[:,2:5], dtype=np.int)
