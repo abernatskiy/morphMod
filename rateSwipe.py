@@ -91,11 +91,14 @@ def processResults(experiment):
 	import pbsGridWalker.tools.plotutils as tplt
 	tfs.makeDirCarefully('results', maxBackups=100)
 
+	# We'll take a look at some parameters vs relative mutation rate at several stages (generation counts) along the evolutionary process
+	stagesToConsider = 5
+	stages = tal.splitIntegerRangeIntoStages(1, evsAdditionalParams['genStopAfter'], stagesToConsider)
+
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
+
 	def plotMinMMMDistVSMorphologicalMutationRate():
-		stagesToConsider = 5
-		stages = tal.splitIntegerRangeIntoStages(1, evsAdditionalParams['genStopAfter'], stagesToConsider)
 		def minMMMDistFileName(gridPoint, generation):
 			return '../results/IP{}_gen{}_MMP{}_minMMMDist'.format(gridPoint['initialPopulationType'], generation, gridPoint['probabilityOfMutatingClass0'])
 		def generateMinMMMDistTimeSlices(gridPoint):
@@ -117,7 +120,7 @@ def processResults(experiment):
 				for mmprob in mmprobslist:
 					fn = minMMMDistFileName({'initialPopulationType': ipt, 'probabilityOfMutatingClass0': mmprob}, gen)
 					mmmmddata[ipt][str(gen)].append(np.loadtxt(fn, dtype=np.int))
-					os.remove(fn)
+					#os.remove(fn)
 				mmmmddata[ipt][str(gen)] = np.stack(mmmmddata[ipt][str(gen)]).T
 
 		def plotMMMMDistVSMorphMod(initPopType):
@@ -125,10 +128,58 @@ def processResults(experiment):
 			title = 'Minimal distance to maximally modular morphology\nvs morphological mutation rate ({} initial population)'.format(initPopType)
 			margins = 0.5
 
-			tplt.plotAverageTimeSeries(mmmmddata[initPopType], 'mmmdist', filename, title=title, legendLocation=1, xlabel='mmrate', xlimit=1, ylimit=None, margins=margins)
+			tplt.plotAverageTimeSeries(mmmmddata[initPopType], 'mmmdist', filename, title=title, legendLocation=1, xlabel='mmrate', xlimit=1, ylimit=None, margins=margins, timeRange=mmprobslist)
 
 		map(plotMMMMDistVSMorphMod, iptypeslist)
+		#print(str(mmmmddata))
 
 		os.chdir('..')
 
 	plotMinMMMDistVSMorphologicalMutationRate()
+
+	def plotFitnessVSMorphologicalMutationRate():
+		import glob
+		def fitnessFileName(gridPoint, generation):
+			return '../results/IP{}_gen{}_MMP{}_fitness'.format(gridPoint['initialPopulationType'], generation, gridPoint['probabilityOfMutatingClass0'])
+		def generateFitnessTimeSlices(gridPoint):
+			bestIndividualFileName = glob.glob('./bestIndividual*.log')[0]
+			bestIndividualData = np.loadtxt(bestIndividualFileName)
+			for genRec in range(bestIndividualData.shape[0]):
+				gen = int(bestIndividualData[genRec,0])
+				if gen in stages:
+					with open(fitnessFileName(gridPoint, gen), 'a') as file:
+						file.write('{}\n'.format(bestIndividualData[genRec,1]))
+		experiment.executeAtEveryGridPointDir(generateFitnessTimeSlices)
+
+		os.chdir('results')
+
+		mmprobslist = sorted([ gp['probabilityOfMutatingClass0'] for gp in _morphologicalMutationProbabilityGrid ])
+		iptypeslist = [ gp['initialPopulationType'] for gp in _initialPopulationTypeGrid ]
+
+		mmmmddata = {}
+		for ipt in iptypeslist:
+			mmmmddata[ipt] = {}
+			for gen in stages:
+				mmmmddata[ipt][str(gen)] = []
+				for mmprob in mmprobslist:
+					fn = fitnessFileName({'initialPopulationType': ipt, 'probabilityOfMutatingClass0': mmprob}, gen)
+					mmmmddata[ipt][str(gen)].append(np.loadtxt(fn))
+					#os.remove(fn)
+				mmmmddata[ipt][str(gen)] = np.stack(mmmmddata[ipt][str(gen)]).T
+
+		mmmmddata['sparse'].pop('1')
+		mmmmddata['random'].pop('1')
+
+		def plotFitnessVSMorphMod(initPopType):
+			filename = 'fitness_vs_mmrate_IP{}.png'.format(initPopType)
+			title = 'Fitness vs morphological mutation rate ({} initial population)'.format(initPopType)
+			margins = 0.5
+
+			tplt.plotAverageTimeSeries(mmmmddata[initPopType], 'fitness', filename, title=title, legendLocation=1, xlabel='mmrate', xlimit=1, ylimit=None, margins=margins, timeRange=mmprobslist)
+
+		map(plotFitnessVSMorphMod, iptypeslist)
+		#print(str(mmmmddata))
+
+		os.chdir('..')
+
+	plotFitnessVSMorphologicalMutationRate()
