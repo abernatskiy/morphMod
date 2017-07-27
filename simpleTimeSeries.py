@@ -105,6 +105,7 @@ def processResults(experiment):
 		xlimit = evsAdditionalParams['genStopAfter']
 		ylimit = None
 		margins = 0.5
+		strips = 'conf95'
 
 		title = 'Fitness time series for the two types of initial populations'
 		dataDict = {x: -1.*np.loadtxt(fitnessFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
@@ -113,9 +114,9 @@ def processResults(experiment):
 		yscale = 'lin'
 
 		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLinLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLinLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
 		xscale = 'log'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLogLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLogLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
 
 		# Plotting the trajectory scatter in logarithmic scale on y
 		alpha = 0.3
@@ -146,6 +147,7 @@ def processResults(experiment):
 		ylimit = None
 		xlimit = evsAdditionalParams['genStopAfter']
 		margins = 0.5
+		strips = 'conf95'
 
 		title = 'Hamming distance to maximally modular morphology'
 		dataDict = {x: np.loadtxt(minMMMDistFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
@@ -153,7 +155,7 @@ def processResults(experiment):
 		# Plotting averages in linear time scales on y
 		yscale = 'lin'
 		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Mutations to MMM', 'minMMMDistTS.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
+		tplt.plotAverageTimeSeries(dataDict, 'Mutations to MMM', 'minMMMDistTS.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
 
 		os.chdir('..')
 
