@@ -10,8 +10,10 @@ import pbsGridWalker.tools.iniWriter as tiniw
 import pbsGridWalker.tools.fsutils as tfs
 import pbsGridWalker.tools.fileIO as tfio # for writeColumns()
 
+
 import morphModRoutes as mmr
 import classifiers
+import gctools
 
 #dryRun = False
 
@@ -21,7 +23,6 @@ segments = 3
 computationName = 'rateSwipe_N' + str(segments)
 
 # Constant hyperparameters
-initialPopulationTypes = ['sparse', 'random']
 evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
                        'compositeClass0': 'integerVectorSymmetricRangeMutations',
                        'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
@@ -47,7 +48,11 @@ maxJobs = 2
 involvedGitRepositories = mmr.involvedGitRepositories
 
 # Required pbsGridWalker definitions
-parametricGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.1, 0.1, 0, 8)*gr.Grid1d('initialPopulationType', initialPopulationTypes)*gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
+_morphologicalMutationProbabilityGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.1, 0.1, 0, 8)
+_initialPopulationTypeGrid = gr.Grid1d('initialPopulationType', ['sparse', 'random'])
+parametricGrid = _morphologicalMutationProbabilityGrid * \
+                 _initialPopulationTypeGrid * \
+                 gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
 	if not exists(mmr.arrowbotsExecutable):
@@ -78,42 +83,52 @@ def runComputationAtPoint(worker, params):
 	return True
 
 def processResults(experiment):
-	'''
+	#import matplotlib
+	#matplotlib.use('Agg')
+	#import matplotlib.pyplot as plt
 	import os
-	import shutil
 	import numpy as np
 	import pbsGridWalker.tools.plotutils as tplt
 	tfs.makeDirCarefully('results', maxBackups=100)
-	def fitnessFileName(initPopType):
-		return 'IP' + initPopType + '_fitness'
-	def columnExtractor(gp):
-		outFile = fitnessFileName(gp['initialPopulationType'])
-		subprocess.call('cut -d \' \' -f 2 bestIndividual*.log | tail -n +4 | tr \'\n\' \' \' >> ../results/' + outFile, shell=True)
-		subprocess.call('echo >> ../results/' + outFile, shell=True)
-	experiment.executeAtEveryGridPointDir(columnExtractor)
-	os.chdir('results')
-	xlabel = 'Generations'
-	ylimit = None
-	margins = 0.5
-	xlimit = evsAdditionalParams['genStopAfter']
-	alpha = 0.3
-	yscale = 'log'
 
-	def plotTSForTheTwoInitalPopulationTypes():
-		title = 'Fitness time series for the two types of initial populations'
-		dataDict = {x: -1.*np.loadtxt(fitnessFileName(x)) for x in ['random', 'sparse']}
+	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
+	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
+	def plotMinMMMDistVSMorphologicalMutationRate():
+		stagesToConsider = 5
+		stages = tal.splitIntegerRangeIntoStages(1, evsAdditionalParams['genStopAfter'], stagesToConsider)
+		def minMMMDistFileName(gridPoint, generation):
+			return '../results/IP{}_gen{}_MMP{}_minMMMDist'.format(gridPoint['initialPopulationType'], generation, gridPoint['probabilityOfMutatingClass0'])
+		def generateMinMMMDistTimeSlices(gridPoint):
+			for gen in stages:
+				with open(minMMMDistFileName(gridPoint, gen), 'a') as file:
+					file.write('{}\n'.format(gctools.minParetoFrontHammingDistanceToMMM(gen)))
+		experiment.executeAtEveryGridPointDir(generateMinMMMDistTimeSlices)
 
-		# Plotting logscale average and trajectory scatter
-		xscale = 'log'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		os.chdir('results')
 
-		# Plotting linscale average and trajectory scatter
-		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins)
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		mmprobslist = sorted([ gp['probabilityOfMutatingClass0'] for gp in _morphologicalMutationProbabilityGrid ])
+		iptypeslist = [ gp['initialPopulationType'] for gp in _initialPopulationTypeGrid ]
 
-	plotTSForTheTwoInitalPopulationTypes()
-	os.chdir('..')
-	'''
-	pass
+		mmmmddata = {}
+		for ipt in iptypeslist:
+			mmmmddata[ipt] = {}
+			for gen in stages:
+				mmmmddata[ipt][str(gen)] = []
+				for mmprob in mmprobslist:
+					fn = minMMMDistFileName({'initialPopulationType': ipt, 'probabilityOfMutatingClass0': mmprob}, gen)
+					mmmmddata[ipt][str(gen)].append(np.loadtxt(fn, dtype=np.int))
+					os.remove(fn)
+				mmmmddata[ipt][str(gen)] = np.stack(mmmmddata[ipt][str(gen)]).T
+
+		def plotMMMMDistVSMorphMod(initPopType):
+			filename = 'mmmmdist_vs_mmrate_IP{}.png'.format(initPopType)
+			title = 'Minimal distance to maximally modular morphology\nvs morphological mutation rate ({} initial population)'.format(initPopType)
+			margins = 0.5
+
+			tplt.plotAverageTimeSeries(mmmmddata[initPopType], 'mmmdist', filename, title=title, legendLocation=1, xlabel='mmrate', xlimit=1, ylimit=None, margins=margins)
+
+		map(plotMMMMDistVSMorphMod, iptypeslist)
+
+		os.chdir('..')
+
+	plotMinMMMDistVSMorphologicalMutationRate()
