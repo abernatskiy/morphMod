@@ -8,6 +8,6 @@ involvedGitRepositories = {'evs': join(morphModPath, 'evs'),
                            'arrowbots': join(morphModPath, 'arrowbots'),
                            'pbsGridWalker': join(morphModPath, 'pbsGridWalker'),
                            'morphMod': morphModPath}
-randSeedFile = join(involvedGitRepositories['pbsGridWalker'], 'seedFiles', 'randints1416551751.dat')
+randSeedFile = join(involvedGitRepositories['pbsGridWalker'], 'seedFiles', 'randints1501268598.dat')
 evsExecutable = join(morphModPath, 'evs', 'evsServer.py')
 arrowbotsExecutable = join(morphModPath, 'arrowbots', 'arrowbotEvaluator')
