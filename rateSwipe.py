@@ -1,4 +1,4 @@
-from os.path import join, exists, expanduser
+from os.path import join, expanduser
 from time import sleep
 import subprocess
 import sys
@@ -6,19 +6,17 @@ sys.path.append(join(expanduser('~'), 'morphMod'))
 
 import pbsGridWalker.grid as gr
 import pbsGridWalker.tools.algorithms as tal
-import pbsGridWalker.tools.iniWriter as tiniw
 import pbsGridWalker.tools.fsutils as tfs
-import pbsGridWalker.tools.fileIO as tfio # for writeColumns()
-
 
 import morphModRoutes as mmr
 import classifiers
 import gctools
+import gccommons
 
 #dryRun = False
 
 # Tunable hyperparameters
-numTrials = 100
+numTrials = 1
 segments = 3
 computationName = 'rateSwipe_N' + str(segments)
 
@@ -55,32 +53,13 @@ parametricGrid = _morphologicalMutationProbabilityGrid * \
                  gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
 
 def prepareEnvironment(experiment):
-	if not exists(mmr.arrowbotsExecutable):
-		raise RuntimeError('Arrowbots executable not found at ' + mmr.arrowbotsExecutable)
-	if not exists(mmr.evsExecutable):
-		raise RuntimeError('EVS executable not found at ' + mmr.evsExecutable)
+	gccommons.prepareEnvironment(experiment)
 
 def runComputationAtPoint(worker, params):
-	print('Running evs-arrowbots pair with the following parameters: ' + str(params))
-	parsedParams = tal.classifyDictWithRegexps(params, classifiers.serverClientClassifier)
-	serverParams = tal.sumOfDicts(parsedParams['server'], evsAdditionalParams)
-	print('Server params: ' + str(serverParams))
-	clientParams = tal.sumOfDicts(parsedParams['client'], arrowbotsAdditionalParams)
-	print('Client params: ' + str(clientParams))
-	tiniw.write(serverParams, classifiers.evsClassifier, 'evs.ini')
-	tiniw.write(clientParams, classifiers.arrowbotsClassifier, 'arrowbot.ini')
-	tfio.writeColumns(arrowbotInitialConditions, 'initialConditions.dat')
-	tfio.writeColumns(arrowbotTargetOrientations, 'targetOrientations.dat')
-
-	geneFifo = tfs.makeUniqueFifo('.', 'genes')
-	evalFifo = tfs.makeUniqueFifo('.', 'evals')
-
-	clientProc = worker.spawnProcess([mmr.arrowbotsExecutable, geneFifo, evalFifo])
-	if not worker.runCommand([mmr.evsExecutable, evalFifo, geneFifo, str(serverParams['randomSeed']), 'evs.ini']):
-		return False
-	worker.killProcess(clientProc, label='client')
-	# TODO: Validation of the obtained files here
-	return True
+	return gccommons.runComputationAtPoint(worker, params,
+		evsAdditionalParams, arrowbotsAdditionalParams,
+		arrowbotInitialConditions,
+		arrowbotTargetOrientations)
 
 def processResults(experiment):
 	#import matplotlib
