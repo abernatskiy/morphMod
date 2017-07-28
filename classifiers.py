@@ -16,7 +16,7 @@ evsClassifier = {'classes': ['individual', 'communicator', 'evolver'],
                              'printBestIndividualPeriod', 'printParetoFront', 'printParetoFrontPeriod',
                              'printPopulation', 'printPopulationPeriod', 'printGeneration',
                              'printGenerationPeriod', 'backup', 'backupPeriod', 'logParetoFront',
-                             'logParetoFrontPeriod', 'logParetoFrontKeepAllGenerations',
+                             'logParetoFrontPeriod', 'logParetoFrontKeepAllGenerations', 'logParetoSize',
                              'randomSeed', 'morphologyControlIndivs']}
 
 arrowbotsClassifier = {'arrowbot parameters': ['segments', 'sensorAttachmentType'],
