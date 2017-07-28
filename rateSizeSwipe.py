@@ -18,9 +18,9 @@ numTrials = 100
 segments = 3
 # Optional definitions for pbsGridWalker that depend on the number of segments
 pointsPerJob = 20
+maxJobs = 8
 queue = 'shortq'
 expectedWallClockTime = '01:00:00'
-maxJobs = 8
 
 # Constant hyperparameters
 evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
