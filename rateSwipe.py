@@ -76,8 +76,8 @@ def processResults(experiment):
 #	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
 	# Exponential stages
 	stages = [0, 1]
-	mult = 10
-	while stages[-1] < evsDefaults['genStopAfter']:
+	mult = 5
+	while stages[-1] <= evsDefaults['genStopAfter']:
 		stages.append(stages[-1]*mult)
 	stages.pop()
 
