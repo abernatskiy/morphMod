@@ -16,6 +16,11 @@ import gccommons
 # Tunable hyperparameters
 numTrials = 100
 segments = 3
+# Optional definitions for pbsGridWalker that depend on the number of segments
+pointsPerJob = 20
+queue = 'shortq'
+expectedWallClockTime = '01:00:00'
+maxJobs = 8
 
 # Constant hyperparameters
 evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
@@ -25,7 +30,7 @@ evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSim
                'compositeClass1': 'integerWeightsSwitchableConnections',
                'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-               'genStopAfter': 200, 'populationSize': 25,
+               'genStopAfter': 125, 'populationSize': 25,
                'initialPopulationType': 'sparse', 'secondObjectiveProbability': 1.,
                'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1,
                'backup': 'no', 'trackAncestry': 'no',
@@ -35,14 +40,7 @@ arrowbotsDefaults = {'segments': segments, 'sensorAttachmentType': 'variable',
                      'integrateError': 'false', 'writeTrajectories': 'false'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
 arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j in range(segments) ] # segmentsXsegments identity matrix
-
-# Optional definitions for pbsGridWalker that depend on the number of segments
-pointsPerJob = 20
-queue = 'shortq'
-expectedWallClockTime = '01:00:00'
-
 # Optional definitions for pbsGridWalker that are constant
-maxJobs = 8
 involvedGitRepositories = mmr.involvedGitRepositories
 # dryRun = False
 
@@ -52,9 +50,9 @@ computationName = 'rateSwipe_N' + str(segments)
 evsDefaults.pop('probabilityOfMutatingClass0')
 evsDefaults.pop('initialPopulationType')
 evsDefaults.pop('randomSeed')
-parametricGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.0, 0.1, 0, 10) * \
-                 gr.Grid1d('initialPopulationType', ['sparse', 'random']) * \
-                 gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
+nonRSGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.0, 0.05, 0, 20) * \
+            gr.Grid1d('initialPopulationType', ['sparse', 'random'])
+parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
 def prepareEnvironment(experiment):
 	gccommons.prepareEnvironment(experiment)
@@ -86,10 +84,13 @@ def processResults(experiment):
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
 
+	xlabel = r'$P_{mm}$'
+	fieldNames = [ 'gen {}'.format(st) for st in stages ]
+
 	def generateMinMMMDistTimeSlices(gridPoint):
 		return [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in stages ]
 	tplt.plotComputationVariableAgainstParameter(experiment, 'mmmmd', generateMinMMMDistTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=map(str, stages), xlabel=r'$P_{mm}$', ylabel=r'$\mu$')
+	                                     fieldNames=fieldNames, xlabel=r'$P_{mm}$', ylabel=r'$\mu$')
 
 	def generateFitnessTimeSlices(gridPoint):
 		bestIndividualData = np.loadtxt('bestIndividual{}.log'.format(gridPoint['randomSeed']))
@@ -100,4 +101,4 @@ def processResults(experiment):
 				fitnessData.append(bestIndividualData[genRec,1]) # WILL break if the best individual records are not in the order of increasing generation
 		return fitnessData
 	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=map(str, stages), transform=lambda x: -1.*x, yscale='log', xlabel=r'$P_{mm}$', ylabel=r'$E$')
+	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=r'$P_{mm}$', ylabel=r'$E$')
