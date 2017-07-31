@@ -77,8 +77,8 @@ def processResults(experiment):
 #	stagesToConsider = 5
 #	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
 	# Exponential stages
-	stages = [0, 5]
 	mult = 5
+	stages = [0, mult]
 	while stages[-1] <= evsDefaults['genStopAfter']:
 		stages.append(stages[-1]*mult)
 	stages.pop()
@@ -92,7 +92,7 @@ def processResults(experiment):
 	def generateMinMMMDistTimeSlices(gridPoint):
 		return [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in stages ]
 	tplt.plotComputationVariableAgainstParameter(experiment, 'mmmmd', generateMinMMMDistTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=fieldNames, xlabel=r'$P_{mm}$', ylabel=r'$\mu$')
+	                                     fieldNames=fieldNames, xlabel=xlabel, ylabel=r'$\mu$')
 
 	def generateFitnessTimeSlices(gridPoint):
 		bestIndividualData = np.loadtxt('bestIndividual{}.log'.format(gridPoint['randomSeed']))
@@ -103,4 +103,4 @@ def processResults(experiment):
 				fitnessData.append(bestIndividualData[genRec,1]) # WILL break if the best individual records are not in the order of increasing generation
 		return fitnessData
 	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=r'$P_{mm}$', ylabel=r'$E$')
+	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=xlabel, ylabel=r'$E$')
