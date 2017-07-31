@@ -39,3 +39,4 @@ generateFromOneBase() {
 generateFromOneBase simpleTimeSeries
 generateFromOneBase rateSwipe
 generateFromOneBase rateSizeSwipe
+generateFromOneBase ccSwipe
