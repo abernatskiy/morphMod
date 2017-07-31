@@ -86,12 +86,13 @@ def processResults(experiment):
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
 
+	xparam = 'secondObjectiveProbability'
 	xlabel = r'$P_{CC}$'
 	fieldNames = [ 'gen {}'.format(st) for st in stages ]
 
 	def generateMinMMMDistTimeSlices(gridPoint):
 		return [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in stages ]
-	tplt.plotComputationVariableAgainstParameter(experiment, 'mmmmd', generateMinMMMDistTimeSlices, 'secondObjectiveProbability',
+	tplt.plotComputationVariableAgainstParameter(experiment, 'mmmmd', generateMinMMMDistTimeSlices, xparam,
 	                                     fieldNames=fieldNames, xlabel=xlabel, ylabel=r'$\mu$')
 
 	def generateFitnessTimeSlices(gridPoint):
@@ -102,5 +103,5 @@ def processResults(experiment):
 			if gen in stages:
 				fitnessData.append(bestIndividualData[genRec,1]) # WILL break if the best individual records are not in the order of increasing generation
 		return fitnessData
-	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, 'probabilityOfMutatingClass0',
+	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, xparam,
 	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=xlabel, ylabel=r'$E$')
