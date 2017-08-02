@@ -1,4 +1,4 @@
-from os.path import join, exists, expanduser
+from os.path import join, expanduser
 from time import sleep
 import subprocess
 import sys
@@ -6,77 +6,61 @@ sys.path.append(join(expanduser('~'), 'morphMod'))
 
 import pbsGridWalker.grid as gr
 import pbsGridWalker.tools.algorithms as tal
-import pbsGridWalker.tools.iniWriter as tiniw
 import pbsGridWalker.tools.fsutils as tfs
-import pbsGridWalker.tools.fileIO as tfio # for writeColumns()
 
 import morphModRoutes as mmr
 import classifiers
 import gctools
-
-#dryRun = False
+import gccommons
 
 # Tunable hyperparameters
-numTrials = 20
+numTrials = 4
 segments = 3
-computationName = 'simpleTimeSeries_N' + str(segments)
+# Optional definitions for pbsGridWalker that depend on the number of segments
+pointsPerJob = 2
+maxJobs = 2
+queue = 'shortq'
+expectedWallClockTime = '03:00:00'
 
 # Constant hyperparameters
-initialPopulationTypes = ['sparse', 'random']
-evsAdditionalParams = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
-                       'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
-                       'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
-                       'mutationAmplitudeClass0': 1,
-                       'compositeClass1': 'integerWeightsSwitchableConnections',
-                       'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
-                       'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-                       'genStopAfter': 200, 'populationSize': 50, 'secondObjectiveProbability': 1.,
-                       'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1,
-                       'backup': 'no', 'trackAncestry': 'no'}
-arrowbotsAdditionalParams = {'segments': segments, 'sensorAttachmentType': 'variable',
-                             'simulationTime': 3., 'timeStep': 0.05, 'integrateError': 'false', 'writeTrajectories': 'false'}
+evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
+               'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
+               'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
+               'mutationAmplitudeClass0': 1,
+               'compositeClass1': 'integerWeightsSwitchableConnections',
+               'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
+               'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
+               'genStopAfter': 600, 'populationSize': 50,
+               'initialPopulationType': 'random', 'secondObjectiveProbability': 1.,
+               'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 5, 'logParetoSize': 'yes',
+               'backup': 'no', 'trackAncestry': 'no',
+               'randomSeed': 0}
+evsDefaults['logParetoFrontPeriod'] = 1 # overriding because the field in defaults gets changed during the scripts' autogeneration
+arrowbotsDefaults = {'segments': segments, 'sensorAttachmentType': 'variable',
+                     'simulationTime': 10., 'timeStep': 0.1,
+                     'integrateError': 'false', 'writeTrajectories': 'false'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
 arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j in range(segments) ] # segmentsXsegments identity matrix
-
-# Optional definitions for pbsGridWalker that depend on the number of segments
-pointsPerJob = 1
-queue = 'shortq'
-expectedWallClockTime = '01:00:00'
-
 # Optional definitions for pbsGridWalker that are constant
-maxJobs = 2
 involvedGitRepositories = mmr.involvedGitRepositories
+# dryRun = False
 
-# Required pbsGridWalker definitions
-parametricGrid = gr.Grid1d('initialPopulationType', initialPopulationTypes)*gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=numTrials)
+### Required pbsGridWalker definitions
+computationName = 'simpleTimeSeries_N' + str(segments)
+
+evsDefaults.pop('initialPopulationType')
+evsDefaults.pop('randomSeed')
+nonRSGrid = gr.Grid1d('initialPopulationType', ['random'])
+parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
 def prepareEnvironment(experiment):
-	if not exists(mmr.arrowbotsExecutable):
-		raise RuntimeError('Arrowbots executable not found at ' + mmr.arrowbotsExecutable)
-	if not exists(mmr.evsExecutable):
-		raise RuntimeError('EVS executable not found at ' + mmr.evsExecutable)
+	gccommons.prepareEnvironment(experiment)
 
 def runComputationAtPoint(worker, params):
-	print('Running evs-arrowbots pair with the following parameters: ' + str(params))
-	parsedParams = tal.classifyDictWithRegexps(params, classifiers.serverClientClassifier)
-	serverParams = tal.sumOfDicts(parsedParams['server'], evsAdditionalParams)
-	print('Server params: ' + str(serverParams))
-	clientParams = tal.sumOfDicts(parsedParams['client'], arrowbotsAdditionalParams)
-	print('Client params: ' + str(clientParams))
-	tiniw.write(serverParams, classifiers.evsClassifier, 'evs.ini')
-	tiniw.write(clientParams, classifiers.arrowbotsClassifier, 'arrowbot.ini')
-	tfio.writeColumns(arrowbotInitialConditions, 'initialConditions.dat')
-	tfio.writeColumns(arrowbotTargetOrientations, 'targetOrientations.dat')
-
-	geneFifo = tfs.makeUniqueFifo('.', 'genes')
-	evalFifo = tfs.makeUniqueFifo('.', 'evals')
-
-	clientProc = worker.spawnProcess([mmr.arrowbotsExecutable, geneFifo, evalFifo])
-	if not worker.runCommand([mmr.evsExecutable, evalFifo, geneFifo, str(serverParams['randomSeed']), 'evs.ini']):
-		return False
-	worker.killProcess(clientProc, label='client')
-	# TODO: Validation of the obtained files here
-	return True
+	return gccommons.runComputationAtPoint(worker, params,
+		evsDefaults, arrowbotsDefaults,
+		arrowbotInitialConditions,
+		arrowbotTargetOrientations)
 
 def processResults(experiment):
 	import os
@@ -90,6 +74,15 @@ def processResults(experiment):
 
 	##### Extracting and plotting fitness time series #####
 
+	xlabel = r'$T$'
+	figureDims = None
+	xlimit = evsDefaults['genStopAfter']
+	margins = 0.5
+	strips = 'conf95'
+
+	title = None
+	legendLocation = None
+
 	def plotFitnessTSs():
 		def fitnessFileName(gp):
 			return gridFileNamePrefix(gp) + '_fitness'
@@ -101,31 +94,28 @@ def processResults(experiment):
 
 		os.chdir('results')
 
-		xlabel = 'Generations'
-		xlimit = evsAdditionalParams['genStopAfter']
+		ylabel = r'$E$'
 		ylimit = None
-		margins = 0.5
-		strips = 'conf95'
 
-		title = 'Fitness time series for the two types of initial populations'
-		dataDict = {x: -1.*np.loadtxt(fitnessFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
+		title = None
+		dataDict = {x: -1.*np.loadtxt(fitnessFileName({'initialPopulationType': x})) for x in ['random']}
 
-		# Plotting averages in linear scale on y
-		yscale = 'lin'
+		# Plotting averages in logarithmic scale on y
+		yscale = 'log'
 
 		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLinLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
+		tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLinLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
 		xscale = 'log'
-		tplt.plotAverageTimeSeries(dataDict, 'Error', 'errorComparisonLogLin.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
+		tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLogLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
 
 		# Plotting the trajectory scatter in logarithmic scale on y
 		alpha = 0.3
 		yscale = 'log'
 
 		xscale = 'lin'
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims)
 		xscale = 'log'
-		tplt.plotAllTimeSeries(dataDict, 'Error', 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha)
+		tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims)
 
 		os.chdir('..')
 
@@ -136,26 +126,23 @@ def processResults(experiment):
 		def minMMMDistFileName(gridPoint):
 			return '../results/' + gridFileNamePrefix(gridPoint) + '_minMMMDist'
 		def generateMinMMMDistTimeSeries(gridPoint):
-			minMMMDistTS = [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in range(1, evsAdditionalParams['genStopAfter']+1) ]
+			minMMMDistTS = [ gctools.minParetoFrontHammingDistanceToMMM(gen) for gen in range(1, evsDefaults['genStopAfter']+1) ]
 			filename = minMMMDistFileName(gridPoint)
 			with open(filename, 'a') as file:
 				file.write(' '.join(map(str, minMMMDistTS)) + '\n')
 		experiment.executeAtEveryGridPointDir(generateMinMMMDistTimeSeries)
 
 		os.chdir('results')
-		xlabel = 'Generations'
+		ylabel = r'$\mu$'
 		ylimit = None
-		xlimit = evsAdditionalParams['genStopAfter']
-		margins = 0.5
-		strips = 'conf95'
 
-		title = 'Hamming distance to maximally modular morphology'
-		dataDict = {x: np.loadtxt(minMMMDistFileName({'initialPopulationType': x})) for x in ['random', 'sparse']}
+		title = None
+		dataDict = {x: np.loadtxt(minMMMDistFileName({'initialPopulationType': x})) for x in ['random']}
 
 		# Plotting averages in linear time scales on y
 		yscale = 'lin'
 		xscale = 'lin'
-		tplt.plotAverageTimeSeries(dataDict, 'Mutations to MMM', 'minMMMDistTS.png', title=title, legendLocation=1, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips)
+		tplt.plotAverageTimeSeries(dataDict, ylabel, 'minMMMDistTS.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
 
 		os.chdir('..')
 
