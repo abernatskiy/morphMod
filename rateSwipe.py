@@ -30,13 +30,13 @@ evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSim
                'compositeClass1': 'integerWeightsSwitchableConnections',
                'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-               'genStopAfter': 125, 'populationSize': 25,
-               'initialPopulationType': 'sparse', 'secondObjectiveProbability': 1.,
-               'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1, 'logParetoSize': 'yes',
+               'genStopAfter': 600, 'populationSize': 50,
+               'initialPopulationType': 'random', 'secondObjectiveProbability': 1.,
+               'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 5, 'logParetoSize': 'yes',
                'backup': 'no', 'trackAncestry': 'no',
                'randomSeed': 0}
 arrowbotsDefaults = {'segments': segments, 'sensorAttachmentType': 'variable',
-                     'simulationTime': 3., 'timeStep': 0.05,
+                     'simulationTime': 10., 'timeStep': 0.1,
                      'integrateError': 'false', 'writeTrajectories': 'false'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
 arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j in range(segments) ] # segmentsXsegments identity matrix

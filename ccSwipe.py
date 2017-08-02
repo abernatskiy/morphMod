@@ -32,7 +32,7 @@ evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSim
                'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
                'genStopAfter': 600, 'populationSize': 50,
                'initialPopulationType': 'random', 'secondObjectiveProbability': 1.,
-               'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1, 'logParetoSize': 'yes',
+               'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 5, 'logParetoSize': 'yes',
                'backup': 'no', 'trackAncestry': 'no',
                'randomSeed': 0}
 arrowbotsDefaults = {'segments': segments, 'sensorAttachmentType': 'variable',
