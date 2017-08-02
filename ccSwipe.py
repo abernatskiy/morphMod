@@ -20,7 +20,7 @@ segments = 3
 pointsPerJob = 20
 maxJobs = 8
 queue = 'shortq'
-expectedWallClockTime = '01:00:00'
+expectedWallClockTime = '03:00:00'
 
 # Constant hyperparameters
 evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
