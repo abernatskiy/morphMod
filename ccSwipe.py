@@ -30,13 +30,13 @@ evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSim
                'compositeClass1': 'integerWeightsSwitchableConnections',
                'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
-               'genStopAfter': 125, 'populationSize': 25,
-               'initialPopulationType': 'sparse', 'secondObjectiveProbability': 1.,
+               'genStopAfter': 600, 'populationSize': 50,
+               'initialPopulationType': 'random', 'secondObjectiveProbability': 1.,
                'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1, 'logParetoSize': 'yes',
                'backup': 'no', 'trackAncestry': 'no',
                'randomSeed': 0}
 arrowbotsDefaults = {'segments': segments, 'sensorAttachmentType': 'variable',
-                     'simulationTime': 3., 'timeStep': 0.05,
+                     'simulationTime': 10., 'timeStep': 0.1,
                      'integrateError': 'false', 'writeTrajectories': 'false'}
 arrowbotInitialConditions = [[0]*segments]*segments # segmentsXsegments null matrix
 arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j in range(segments) ] # segmentsXsegments identity matrix
@@ -73,15 +73,8 @@ def processResults(experiment):
 
 	# We'll take a look at some parameters vs relative mutation rate at several stages (generation counts) along the evolutionary process
 
-	# Linear stages
-#	stagesToConsider = 5
-#	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
-	# Exponential stages
-	mult = 5
-	stages = [0, mult]
-	while stages[-1] <= evsDefaults['genStopAfter']:
-		stages.append(stages[-1]*mult)
-	stages.pop()
+	# Stages of the evolution where we want to know the state
+	stages = [0, 100, 300, 600]
 
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
