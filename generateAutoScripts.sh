@@ -31,7 +31,7 @@ generateFromOneBase() {
 	local base_script="${1}"
 	# Regarding convergence times: about 100 gens for 3 segments at probability of morphological mutation of 0.2, 400 for 5, 10 gets stuck indefinitely.
 	# The times are doubled where known and for 10 segments a placeholder 2000 is used for now
-	generateOneScript "${base_script}" 3 600 5 'shortq' '03:00:00' 2 '3.0' '0.05' 5 "'integerVectorSymmetricRangeMutations', 'integerVectorRandomJumps'"
+	generateOneScript "${base_script}" 3 600 5 'shortq' '03:00:00' 2 '10.0' '0.1' 5 "'integerVectorSymmetricRangeMutations', 'integerVectorRandomJumps'"
 	generateOneScript "${base_script}" 5 625 5 'shortq' '03:00:00' 8 '3.0' '0.05' 5 "'integerVectorSymmetricRangeMutations', 'integerVectorRandomJumps'"
 	generateOneScript "${base_script}" 10 1000 10 'workq' '30:00:00' 100 '6.0' '0.1' 10 "'integerVectorSymmetricRangeMutations'"
 }
