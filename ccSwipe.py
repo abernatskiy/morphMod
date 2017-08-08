@@ -73,8 +73,9 @@ def processResults(experiment):
 
 	# We'll take a look at some parameters vs relative mutation rate at several stages (generation counts) along the evolutionary process
 
-	# Stages of the evolution where we want to know the state
-	stages = [0, 100, 300, 600]
+	# Linear stages
+	stagesToConsider = 5
+	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
 
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
