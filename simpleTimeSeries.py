@@ -51,7 +51,7 @@ computationName = 'simpleTimeSeries_N' + str(segments)
 nonRSGrid = gr.Grid1d('initialPopulationType', ['random'])
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
-for par in parametericGrid.paramNames():
+for par in parametricGrid.paramNames():
 	evsDefaults.pop(par)
 
 def prepareEnvironment(experiment):

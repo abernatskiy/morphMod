@@ -52,7 +52,7 @@ nonRSGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.0, 0.2, 0, 5) * \
             gr.Grid1d('populationSize', [15, 25, 40, 60])
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
-for par in parametericGrid.paramNames():
+for par in parametricGrid.paramNames():
 	evsDefaults.pop(par)
 
 def prepareEnvironment(experiment):
