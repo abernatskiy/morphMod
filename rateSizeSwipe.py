@@ -47,14 +47,13 @@ involvedGitRepositories = mmr.involvedGitRepositories
 ### Required pbsGridWalker definitions
 computationName = 'rateSizeSwipe_N' + str(segments)
 
-evsDefaults.pop('probabilityOfMutatingClass0')
-evsDefaults.pop('initialPopulationType')
-evsDefaults.pop('populationSize')
-evsDefaults.pop('randomSeed')
 nonRSGrid = gr.LinGrid('probabilityOfMutatingClass0', 0.0, 0.2, 0, 5) * \
             gr.Grid1d('initialPopulationType', ['sparse', 'random']) * \
             gr.Grid1d('populationSize', [15, 25, 40, 60])
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
+
+for par in parametericGrid.paramNames():
+	evsDefaults.pop(par)
 
 def prepareEnvironment(experiment):
 	gccommons.prepareEnvironment(experiment)

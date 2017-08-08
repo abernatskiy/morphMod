@@ -48,10 +48,11 @@ involvedGitRepositories = mmr.involvedGitRepositories
 ### Required pbsGridWalker definitions
 computationName = 'simpleTimeSeries_N' + str(segments)
 
-evsDefaults.pop('initialPopulationType')
-evsDefaults.pop('randomSeed')
 nonRSGrid = gr.Grid1d('initialPopulationType', ['random'])
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
+
+for par in parametericGrid.paramNames():
+	evsDefaults.pop(par)
 
 def prepareEnvironment(experiment):
 	gccommons.prepareEnvironment(experiment)
