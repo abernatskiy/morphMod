@@ -48,8 +48,7 @@ involvedGitRepositories = mmr.involvedGitRepositories
 computationName = 'ccSwipe_N' + str(segments)
 
 nonRSGrid = gr.LinGrid('secondObjectiveProbability', 0.0, 0.05, 0, 20) * \
-            gr.Grid1d('initialPopulationType', ['sparse', 'random']) * \
-            gr.Grid1d('compositeClass0', ['integerVectorSymmetricRangeMutations', 'integerVectorRandomJumps'])
+            gr.Grid1d('initialPopulationType', ['sparse', 'random'])
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
 for par in parametricGrid.paramNames():
@@ -74,7 +73,7 @@ def processResults(experiment):
 
 	# Linear stages
 	stagesToConsider = 5
-	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
+	stages = tal.splitIntegerRangeIntoStages(0, evsDefaults['genStopAfter'], stagesToConsider)
 
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
