@@ -73,7 +73,7 @@ def processResults(experiment):
 
 	# Linear stages
 	stagesToConsider = 5
-	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
+	stages = tal.splitIntegerRangeIntoStages(0, evsDefaults['genStopAfter'], stagesToConsider)
 
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
