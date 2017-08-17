@@ -73,7 +73,7 @@ def processResults(experiment):
 
 	# Linear stages
 	stagesToConsider = 5
-	stages = tal.splitIntegerRangeIntoStages(0, evsAdditionalParams['genStopAfter'], stagesToConsider)
+	stages = tal.splitIntegerRangeIntoStages(0, evsDefaults['genStopAfter'], stagesToConsider)
 
 	##### Extracting and plotting the distance to the maximally modular morphology (MMM) for various values relative mutation rate #####
 	# mmmmdist and similar abbreviations stand for "minimal distance to the maximally modular morphology" (across the Pareto front)
@@ -95,4 +95,4 @@ def processResults(experiment):
 				fitnessData.append(bestIndividualData[genRec,1]) # WILL break if the best individual records are not in the order of increasing generation
 		return fitnessData
 	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=xlabel, ylabel=r'$E$')
+	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=xlabel, ylabel=r'$E$', strips=None)
