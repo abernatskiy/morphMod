@@ -17,7 +17,7 @@ import gccommons
 numTrials = 4
 segments = 3
 # Optional definitions for pbsGridWalker that depend on the number of segments
-pointsPerJob = 2
+pointsPerJob = 5
 maxJobs = 2
 queue = 'shortq'
 expectedWallClockTime = '03:00:00'
@@ -48,7 +48,9 @@ involvedGitRepositories = mmr.involvedGitRepositories
 ### Required pbsGridWalker definitions
 computationName = 'simpleTimeSeries_N' + str(segments)
 
-nonRSGrid = gr.Grid1d('initialPopulationType', ['random'])
+gcvsrandGrid = gr.Grid1d('compositeClass0', ['integerVectorSymmetricRangeMutations', 'integerVectorRandomJumps'])*gr.Grid1d('probabilityOfMutatingClass0', [0.2])
+constmorphGrid = gr.Grid1d('compositeClass0', ['integerVectorSymmetricRangeMutations'])*gr.Grid1d('probabilityOfMutatingClass0', [0.0])
+nonRSGrid = gcvsrandGrid.concatenate(constmorphGrid)
 parametricGrid = nonRSGrid*numTrials + gr.Grid1dFromFile('randomSeed', mmr.randSeedFile, size=len(nonRSGrid)*numTrials)
 
 for par in parametricGrid.paramNames():
@@ -64,6 +66,7 @@ def runComputationAtPoint(worker, params):
 		arrowbotTargetOrientations)
 
 def processResults(experiment):
+	'''
 	import os
 	import shutil
 	import numpy as np
@@ -148,3 +151,4 @@ def processResults(experiment):
 		os.chdir('..')
 
 	plotMinMMMDistTSs()
+	'''
