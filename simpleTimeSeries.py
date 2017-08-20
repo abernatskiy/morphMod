@@ -14,11 +14,11 @@ import gctools
 import gccommons
 
 # Tunable hyperparameters
-numTrials = 4
+numTrials = 100
 segments = 3
 # Optional definitions for pbsGridWalker that depend on the number of segments
-pointsPerJob = 5
-maxJobs = 2
+pointsPerJob = 38
+maxJobs = 8
 queue = 'shortq'
 expectedWallClockTime = '03:00:00'
 
