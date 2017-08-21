@@ -24,7 +24,7 @@ expectedWallClockTime = '03:00:00'
 
 # Constant hyperparameters
 evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSimplifiedMorphologyControlIndividuals', 'communicator': 'chunkedUnixPipe',
-               'compositeClass0': 'trinaryWeights', 'probabilityOfMutatingClass0': 0.2,
+               'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
                'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
                'mutationAmplitudeClass0': 1,
                'compositeClass1': 'integerWeightsSwitchableConnections',
