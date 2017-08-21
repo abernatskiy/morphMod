@@ -27,7 +27,7 @@ evsDefaults = {'individual': 'compositeFixedProbabilities', 'evolver': 'cluneSim
                'compositeClass0': 'integerVectorSymmetricRangeMutations', 'probabilityOfMutatingClass0': 0.2,
                'lengthClass0': segments, 'initLowerLimitClass0': 0, 'initUpperLimitClass0': segments, 'lowerCapClass0': 0, 'upperCapClass0': segments,
                'mutationAmplitudeClass0': 1,
-               'compositeClass1': 'integerWeightsSwitchableConnections',
+               'compositeClass1': 'trinaryWeights',
                'lengthClass1': 2*(segments**2), 'initLowerLimitClass1': -1, 'initUpperLimitClass1': 1, 'lowerCapClass1': -1, 'upperCapClass1': 1,
                'mutExplorationClass1': 0.8, 'mutInsDelRatioClass1': 1, 'mutationAmplitudeClass1': 1,
                'genStopAfter': 600, 'populationSize': 50,
