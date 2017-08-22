@@ -4,6 +4,8 @@ import subprocess
 import os
 import numpy as np
 import sys
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 sys.path.append(join(expanduser('~'), 'morphMod'))
 
