@@ -190,6 +190,7 @@ def plotErrorTSs(experiment, prefixFun):
 	os.chdir('results')
 
 	ylabel = r'$\log_{10} E$'
+	forcedYLabelPos = [0.05, 1.]
 	ylimit = None
 
 	title = None
@@ -199,18 +200,18 @@ def plotErrorTSs(experiment, prefixFun):
 	yscale = 'lin'
 	xscale = 'lin'
 
-	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLinLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
+	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLinLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims, forcedYLabelPos=forcedYLabelPos)
 	xscale = 'log'
-	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLogLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
+	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLogLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims, forcedYLabelPos=forcedYLabelPos)
 
 	# Plotting the trajectory scatter
 	alpha = 0.3
 	yscale = 'lin'
 
 	xscale = 'lin'
-	tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims)
+	tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims, forcedYLabelPos=forcedYLabelPos)
 	xscale = 'log'
-	tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims)
+	tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLogLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims, forcedYLabelPos=forcedYLabelPos)
 
 	plt.clf()
 
