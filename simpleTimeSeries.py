@@ -189,7 +189,7 @@ def plotErrorTSs(experiment, prefixFun):
 
 	os.chdir('results')
 
-	ylabel = r'$E$'
+	ylabel = r'$\log_{10} E$'
 	ylimit = None
 
 	title = None
@@ -262,11 +262,11 @@ def processResults(experiment):
 	def gridFileNamePrefix(gridPoint):
 		if gridPoint['probabilityOfMutatingClass0'] == 0.2:
 			if gridPoint['compositeClass0'] == 'integerVectorSymmetricRangeMutations':
-				return 'giganticConvergence'
+				return 'move_sensor_by_1_segment'
 			elif gridPoint['compositeClass0'] == 'integerVectorRandomJumps':
-				return 'morphologicalJumps'
+				return 're-generate_morphology'
 		elif gridPoint['probabilityOfMutatingClass0'] == 0 and gridPoint['compositeClass0'] == 'integerVectorSymmetricRangeMutations':
-				return 'frozenMorphology'
+				return 'no_morphological_mutation'
 		raise ValueError('Wrong point {} in the non-RS grid'.format(gridPoint))
 
 	plotErrorTSs(experiment, gridFileNamePrefix)
