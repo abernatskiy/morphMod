@@ -95,4 +95,4 @@ def processResults(experiment):
 				fitnessData.append(bestIndividualData[genRec,1]) # WILL break if the best individual records are not in the order of increasing generation
 		return fitnessData
 	tplt.plotComputationVariableAgainstParameter(experiment, 'error', generateFitnessTimeSlices, 'probabilityOfMutatingClass0',
-	                                     fieldNames=fieldNames, transform=lambda x: -1.*x, yscale='log', xlabel=xlabel, ylabel=r'$\log_10 E$', strips='conf95')
+	                                     fieldNames=fieldNames, transform=lambda x: x, yscale='lin', xlabel=xlabel, ylabel=r'$\log_10 E$', strips='conf95', forcedYLabelPos=[0.05,1])
