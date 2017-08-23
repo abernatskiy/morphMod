@@ -9,6 +9,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 sys.path.append(join(expanduser('~'), 'morphMod'))
 
+from matplotlib.colors import LogNorm
+
 import pbsGridWalker.grid as gr
 import pbsGridWalker.tools.algorithms as tal
 import pbsGridWalker.tools.fsutils as tfs
@@ -79,7 +81,7 @@ def runComputationAtPoint(worker, params):
 
 def plotTTCvsMMMD(experiment):
 	import scipy
-	fitnessThreshold = 1e-8
+	fitnessThreshold = -8
 
 	def TTCvsMMMD(gridPoint):
 		if not (gridPoint['compositeClass0'] == 'integerVectorSymmetricRangeMutations' and gridPoint['probabilityOfMutatingClass0'] == 0.2):
@@ -142,7 +144,8 @@ def plotTTCvsMMMD(experiment):
 	fig, ax = plt.subplots(figsize=(7,6))
 	cax = fig.add_axes() # https://stackoverflow.com/questions/32462881
 
-	im = ax.imshow(np.flipud(hh.T),cmap='jet',extent=np.array(xyrange).flatten(), interpolation='none', origin='upper')
+	#im = ax.imshow(np.flipud(hh.T),cmap='jet',extent=np.array(xyrange).flatten(), interpolation='none', origin='upper',norm=LogNorm(vmin=1, vmax=10000))
+	im = ax.imshow(np.flipud(hh.T),cmap='jet',extent=np.array(xyrange).flatten(), interpolation='none', origin='upper',norm=LogNorm(vmin=1))
 
 	cb = fig.colorbar(im, cax=cax)
 	cb.set_label('# of points')
@@ -171,7 +174,7 @@ def plotErrorTSs(experiment, prefixFun):
 	figureDims = None
 	xlimit = evsDefaults['genStopAfter']
 	margins = 0.5
-	strips = None
+	strips = 'conf95'
 
 	title = None
 	legendLocation = 1
@@ -192,17 +195,17 @@ def plotErrorTSs(experiment, prefixFun):
 	title = None
 	dataDict = {gridFileNamePrefix(p): -1.*np.loadtxt(fitnessFileName(p)) for p in nonRSGrid}
 
-	# Plotting averages in logarithmic scale on y
-	yscale = 'log'
+	# Plotting averages
+	yscale = 'lin'
 	xscale = 'lin'
 
 	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLinLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
 	xscale = 'log'
 	tplt.plotAverageTimeSeries(dataDict, ylabel, 'errorComparisonLogLin.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, strips=strips, figureDims=figureDims)
 
-	# Plotting the trajectory scatter in logarithmic scale on y
+	# Plotting the trajectory scatter
 	alpha = 0.3
-	yscale = 'log'
+	yscale = 'lin'
 
 	xscale = 'lin'
 	tplt.plotAllTimeSeries(dataDict, ylabel, 'errorAllTrajectoriesLinLog.png', title=title, legendLocation=legendLocation, xlabel=xlabel, xlimit=xlimit, ylimit=ylimit, xscale=xscale, yscale=yscale, margins=margins, alpha=alpha, figureDims=figureDims)
