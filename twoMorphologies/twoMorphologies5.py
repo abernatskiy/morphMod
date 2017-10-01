@@ -23,9 +23,9 @@ computationName = 'twoMorphologies_N' + str(segments)
 # Constant hyperparameters
 attachments = {'identity': 'J=I', 'null': 'J=0'}
 initialPopulationTypes = ['sparse', 'random']
-evsAdditionalParams = {'individual': 'integerWeightsSwitchableConnections', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
+evsAdditionalParams = {'individual': 'trinaryWeights', 'communicator': 'unixPipe', 'evolver': 'cluneSimplified',
                        'length': 2*(segments**2), 'initLowerLimit': -1, 'initUpperLimit': 1, 'lowerCap': -1, 'upperCap': 1, 'mutExploration': 0.5, 'mutInsDelRatio': 1, 'mutationAmplitude': 1,
-                       'populationSize': 50, 'genStopAfter': 500, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes',
+                       'populationSize': 50, 'genStopAfter': 500, 'secondObjectiveProbability': 1, 'logParetoFront': 'yes', 'logBestIndividual': 'yes', 'logParetoSize': 'yes',
                        'logParetoFrontKeepAllGenerations': 'yes', 'logParetoFrontPeriod': 1, 'backup': 'yes', 'trackAncestry': 'yes'}
 arrowbotsAdditionalParams = {'segments': segments,
                              'simulationTime': 10., 'timeStep': 0.1, 'integrateError': 'no', 'writeTrajectories': 'no'}
@@ -34,11 +34,11 @@ arrowbotTargetOrientations = [ [1 if i==j else 0 for i in range(segments)] for j
 
 # Optional definitions for pbsGridWalker that depend on the number of segments
 pointsPerJob = 10
+maxJobs = 8
 queue = 'shortq'
 expectedWallClockTime = '03:00:00'
 
 # Optional definitions for pbsGridWalker that are constant
-maxJobs = 25
 involvedGitRepositories = mmr.involvedGitRepositories
 
 # Required pbsGridWalker definitions
